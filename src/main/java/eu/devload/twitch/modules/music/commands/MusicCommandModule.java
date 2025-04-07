@@ -14,6 +14,7 @@ public class MusicCommandModule implements TwitchModule {
         registerCommand(new Skip());
         registerCommand(new Song());
         registerCommand(new Volume());
+        registerCommand(new add_to_queue());
 
     }
 
