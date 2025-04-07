@@ -15,6 +15,11 @@ public class GenerateSSkip implements TwitchCommand {
             return;
         }
 
+        if(channel.getBroadcasterType().equalsIgnoreCase("default")) {
+            channel.sendMessage("You need to be a Twitch Partner or affiliate to use this command. | "+sender.getName());
+            return;
+        }
+
         TwitchAPI.createNewRewardForSongSkip(channel);
         channel.sendMessage("Created a new reward for song skip. You can edit the reward via twitch dashboard. | "+sender.getName());
 
