@@ -57,7 +57,8 @@ public class TwitchChannel {
                         return null;
                     }
                     String newOauth2 = json.getString("access_token");
-                    String newRefreshToken = json.has("refresh_token") ? json.getString("refresh_token") : refreshToken;
+                    if(!json.has("refresh_token")) json.put("refresh_token", refreshToken);
+                    String newRefreshToken = json.getString("refresh_token");
                     long expiresIn = System.currentTimeMillis()/1000 + json.getLong("expires_in");
                     SystemAPI.get().database().execute("UPDATE Channels SET sAccessToken='" + newOauth2 + "', sRefreshToken='" + newRefreshToken + "', sExpires=" + expiresIn + " WHERE channelId=" + id);
                     return json;
