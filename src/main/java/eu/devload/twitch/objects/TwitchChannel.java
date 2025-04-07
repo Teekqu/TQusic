@@ -48,6 +48,7 @@ public class TwitchChannel {
                     String newOauth2 = json.getString("access_token");
                     String newRefreshToken = json.getString("refresh_token");
                     long expiresIn = System.currentTimeMillis()/1000 + json.getLong("expires_in");
+                    json.put("expires", expiresIn);
                     SystemAPI.get().database().execute("UPDATE Channels SET tAccessToken='" + newOauth2 + "', tRefreshToken='" + newRefreshToken + "', tExpires=" + expiresIn + " WHERE channelId=" + id);
                     return json;
                 } else {
@@ -60,6 +61,7 @@ public class TwitchChannel {
                     if(!json.has("refresh_token")) json.put("refresh_token", refreshToken);
                     String newRefreshToken = json.getString("refresh_token");
                     long expiresIn = System.currentTimeMillis()/1000 + json.getLong("expires_in");
+                    json.put("expires", System.currentTimeMillis()/1000 + json.getLong("expires_in"));
                     SystemAPI.get().database().execute("UPDATE Channels SET sAccessToken='" + newOauth2 + "', sRefreshToken='" + newRefreshToken + "', sExpires=" + expiresIn + " WHERE channelId=" + id);
                     return json;
                 }
