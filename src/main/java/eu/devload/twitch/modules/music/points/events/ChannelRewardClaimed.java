@@ -8,10 +8,11 @@ import eu.devload.twitch.objects.TwitchChannel;
 public class ChannelRewardClaimed implements RewardRedeemedEvent {
     @Override
     public void onEvent(TwitchChannel channel, com.github.twitch4j.pubsub.events.RewardRedeemedEvent event) {
-
-        if (channel.spotifyApi() == null) return;
-
         if(event.getRedemption().getReward().getId().equalsIgnoreCase(channel.getSongRequestId())) {
+            if(channel.spotifyApi() == null) {
+                channel.sendMessage("Spotify API is not available. | " + event.getRedemption().getUser().getDisplayName());
+                return;
+            }
             String input = event.getRedemption().getUserInput();
             if (input != null && !input.isEmpty()) {
                 SpotifyTrack track = channel.spotifyApi().searchTrack(input);
@@ -29,7 +30,15 @@ public class ChannelRewardClaimed implements RewardRedeemedEvent {
                 channel.sendMessage("No song name provided. | " + event.getRedemption().getUser().getDisplayName());
             }
         } else if(event.getRedemption().getReward().getId().equalsIgnoreCase(channel.getSongSkipId())) {
-            channel.spotifyApi().skip();
+            if(channel.spotifyApi() == null) {
+                channel.sendMessage("Spotify API is not available. | " + event.getRedemption().getUser().getDisplayName());
+                return;
+            }
+            if(channel.spotifyApi().skip()) {
+                channel.sendMessage("Skipped song with channel points | " + event.getRedemption().getUser().getDisplayName());
+            } else {
+                channel.sendMessage("No song to skip | " + event.getRedemption().getUser().getDisplayName());
+            }
         }
 
     }

@@ -61,7 +61,7 @@ public class SpotifyAPI {
     }
 
     public void checkAndRefresh() {
-        if (System.currentTimeMillis() > expires) {
+        if (System.currentTimeMillis()/1000 > expires) {
             JSONObject json = twitch.rawOauth2("s");
             json = twitch.rawOauth2("s");
             if (json != null) {
@@ -81,6 +81,7 @@ public class SpotifyAPI {
         }
         try {
             HttpClient client = HttpClient.newHttpClient();
+            search = search.replace(" ", "%20");
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.spotify.com/v1/search?q=" + search + "&type=track&limit=1"))
                     .header("Content-Type", "application/json")
@@ -173,6 +174,7 @@ public class SpotifyAPI {
     }
 
     public SpotifyTrack getCurrentPlaying() {
+        if(!this.isPlaying()) return null;
         try {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
@@ -255,6 +257,7 @@ public class SpotifyAPI {
     }
 
     public boolean skip() {
+        if(!this.isPlaying()) return false;
         try {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
@@ -347,6 +350,28 @@ public class SpotifyAPI {
         } catch (Exception err) {
             err.printStackTrace();
             return -1;
+        }
+    }
+
+    public boolean isPlaying() {
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.spotify.com/v1/me/player"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + this.accessToken)
+                    .GET()
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                String body = response.body();
+                JSONObject json = new JSONObject(body);
+                return json.getBoolean("is_playing");
+            }
+            return false;
+        } catch (Exception err) {
+            err.printStackTrace();
+            return false;
         }
     }
 

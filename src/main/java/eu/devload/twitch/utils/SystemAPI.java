@@ -1,5 +1,6 @@
 package eu.devload.twitch.utils;
 
+import com.github.philippheuer.credentialmanager.domain.Credential;
 import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.TwitchClient;
 import eu.devload.twitch.manager.ModuleManager;

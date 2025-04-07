@@ -5,6 +5,8 @@ import eu.devload.twitch.interfaces.TwitchCommand;
 import eu.devload.twitch.manager.TwitchAPI;
 import eu.devload.twitch.objects.TwitchChannel;
 
+import java.util.Optional;
+
 public class GenerateSSkip implements TwitchCommand {
     @Override
     public void execute(TwitchChannel channel, EventUser sender, String command, String[] args) {
@@ -20,7 +22,11 @@ public class GenerateSSkip implements TwitchCommand {
             return;
         }
 
-        TwitchAPI.createNewRewardForSongSkip(channel);
+        Optional<String> reward = TwitchAPI.createNewRewardForSongSkip(channel);
+        if(reward.isPresent() && !reward.get().isEmpty()) {
+            channel.sendMessage("Error while creating reward - Make sure that you haven't created a reward with the same name before. | "+sender.getName());
+            return;
+        }
         channel.sendMessage("Created a new reward for song skip. You can edit the reward via twitch dashboard. | "+sender.getName());
 
     }

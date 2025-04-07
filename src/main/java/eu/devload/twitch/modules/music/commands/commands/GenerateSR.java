@@ -5,6 +5,8 @@ import eu.devload.twitch.interfaces.TwitchCommand;
 import eu.devload.twitch.manager.TwitchAPI;
 import eu.devload.twitch.objects.TwitchChannel;
 
+import java.util.Optional;
+
 public class GenerateSR implements TwitchCommand {
     @Override
     public void execute(TwitchChannel channel, EventUser sender, String command, String[] args) {
@@ -21,7 +23,11 @@ public class GenerateSR implements TwitchCommand {
             return;
         }
 
-        TwitchAPI.createNewRewardForSongRequest(channel);
+        Optional<String> reward = TwitchAPI.createNewRewardForSongRequest(channel);
+        if(reward.isPresent() && !reward.get().isEmpty()) {
+            channel.sendMessage("Error while creating reward - Make sure that you haven't created a reward with the same name before. | "+sender.getName());
+            return;
+        }
         channel.sendMessage("Created a new reward for song requests. You can edit the reward via twitch dashboard. | "+sender.getName());
 
     }

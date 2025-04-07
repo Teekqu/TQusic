@@ -295,7 +295,7 @@ public class TwitchChannel {
 
     public void setSongRequestId(String id) {
         try {
-            SystemAPI.get().database().execute("INSERT INTO Rewards (channelId, type, id) VALUES ('"+id+"', 'songrequest', '"+id+"') ON DUPLICATE KEY UPDATE id='"+id+"';");
+            SystemAPI.get().database().execute("INSERT INTO Rewards (channelId, type, id) VALUES ('"+this.id()+"', 'songrequest', '"+id+"') ON DUPLICATE KEY UPDATE id='"+id+"';");
             return;
         } catch (Exception err) {
             err.printStackTrace();
@@ -304,7 +304,7 @@ public class TwitchChannel {
     }
     public void setSongSkipId(String id) {
         try {
-            SystemAPI.get().database().execute("INSERT INTO Rewards (channelId, type, id) VALUES ('"+id+"', 'songskip', '"+id+"') ON DUPLICATE KEY UPDATE id='"+id+"';");
+            SystemAPI.get().database().execute("INSERT INTO Rewards (channelId, type, id) VALUES ('"+this.id()+"', 'songskip', '"+id+"') ON DUPLICATE KEY UPDATE id='"+id+"';");
             return;
         } catch (Exception err) {
             err.printStackTrace();

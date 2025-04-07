@@ -1,5 +1,7 @@
 package eu.devload.twitch.manager;
 
+import com.github.philippheuer.credentialmanager.domain.Credential;
+import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.twitch4j.TwitchClient;
 import eu.devload.twitch.objects.ClientUser;
 import eu.devload.twitch.objects.TwitchChannel;
@@ -55,6 +57,7 @@ public record TwitchManager(TwitchClient client) {
     public void joinChannel(TwitchChannel channel) {
         this.client.getChat().joinChannel(channel.getName());
         this.client.getClientHelper().enableStreamEventListener(channel.getName());
+        this.client.getPubSub().listenForChannelPointsRedemptionEvents(new OAuth2Credential("twitch", channel.oauth2("t")), channel.id());
         System.out.println("[JOINED] " + channel.getName() + " (" + channel.id() + ")");
     }
 

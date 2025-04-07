@@ -15,14 +15,15 @@ import eu.devload.twitch.utils.SystemAPI;
 public class TQusic {
 
     public static void main(String[] args) {
+        OAuth2Credential twitch = new OAuth2Credential("twitch", SystemAPI.get().config().get("twitch.client.oauth").getAsString());
         TwitchClient client = TwitchClientBuilder.builder()
-                .withDefaultAuthToken(new OAuth2Credential("twitch", SystemAPI.get().config().get("twitch.client.oauth").getAsString()))
+                .withDefaultAuthToken(twitch)
                 .withEnableHelix(true)
                 .withEnablePubSub(true)
                 .withChatQueueTimeout(10000)
                 .withTimeout(10000)
                 .withEnableChat(true)
-                .withChatAccount(new OAuth2Credential("twitch", SystemAPI.get().config().get("twitch.client.oauth").getAsString()))
+                .withChatAccount(twitch)
                 .withChatCommandsViaHelix(true)
                 .build();
 
