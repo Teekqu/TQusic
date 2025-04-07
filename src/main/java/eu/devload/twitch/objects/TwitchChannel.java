@@ -8,12 +8,7 @@ import eu.devload.twitch.utils.Convert;
 import eu.devload.twitch.utils.SystemAPI;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.sql.ResultSet;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -218,7 +213,8 @@ public class TwitchChannel {
     }
 
     public void sendMessage(String message) {
-        SystemAPI.get().client().getChat().sendMessage(this.getName(), message);
+        ChatMessage msg = new ChatMessage(this.id(), ClientUser.get().id(), message, null);
+        SystemAPI.get().client().getHelix().sendChatMessage(ClientUser.get().oauth(), msg).execute();
     }
 
     public void timeoutUser(String userId, int seconds, String reason) {

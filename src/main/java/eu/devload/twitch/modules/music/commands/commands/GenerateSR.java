@@ -8,7 +8,7 @@ import eu.devload.twitch.objects.TwitchChannel;
 public class GenerateSR implements TwitchCommand {
     @Override
     public void execute(TwitchChannel channel, EventUser sender, String command, String[] args) {
-
+        if(!command.equalsIgnoreCase("generate-sr")) return;
         if(!channel.isBroadcaster(sender.getId())) return;
 
         if (channel.spotifyApi() == null) {

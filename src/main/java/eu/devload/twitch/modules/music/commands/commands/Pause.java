@@ -7,7 +7,7 @@ import eu.devload.twitch.objects.TwitchChannel;
 public class Pause implements TwitchCommand {
     @Override
     public void execute(TwitchChannel channel, EventUser sender, String command, String[] args) {
-
+        if(!command.equalsIgnoreCase("pause") && !command.equalsIgnoreCase("stop")) return;
         if(!channel.isModerator(sender.getId())) return;
 
         if (channel.spotifyApi() == null) {

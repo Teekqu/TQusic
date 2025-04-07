@@ -7,7 +7,7 @@ import eu.devload.twitch.objects.TwitchChannel;
 public class Skip implements TwitchCommand {
     @Override
     public void execute(TwitchChannel channel, EventUser sender, String command, String[] args) {
-
+        if(!command.equalsIgnoreCase("skip")) return;
         if(!channel.isModerator(sender.getId())) return;
 
         if (channel.spotifyApi() == null) {

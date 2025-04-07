@@ -8,7 +8,7 @@ import eu.devload.twitch.objects.TwitchChannel;
 public class Volume implements TwitchCommand {
     @Override
     public void execute(TwitchChannel channel, EventUser sender, String command, String[] args) {
-
+        if(!command.equalsIgnoreCase("volume") && !command.equalsIgnoreCase("vol")) return;
         if(!channel.isModerator(sender.getId())) return;
 
         SpotifyAPI spotify = channel.spotifyApi();

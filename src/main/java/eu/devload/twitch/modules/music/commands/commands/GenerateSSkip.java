@@ -8,7 +8,7 @@ import eu.devload.twitch.objects.TwitchChannel;
 public class GenerateSSkip implements TwitchCommand {
     @Override
     public void execute(TwitchChannel channel, EventUser sender, String command, String[] args) {
-
+        if(!command.equalsIgnoreCase("generate-sskip")) return;
         if(!channel.isBroadcaster(sender.getId())) return;
         if (channel.spotifyApi() == null) {
             channel.sendMessage("Spotify API is not available. | "+sender.getName());

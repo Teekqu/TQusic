@@ -95,7 +95,7 @@ public record TwitchManager(TwitchClient client) {
 
     public JSONObject generateNewOauth2TokenWithCode(String code) {
         try {
-            URL url = new URL(String.format("https://id.twitch.tv/oauth2/token?client_id=%s&client_secret=%s&code=%s&grant_type=authorization_code&redirect_uri=%s", SystemAPI.get().config().get("twitch.client.id"), SystemAPI.get().config().get("twitch.client.secret"), code, SystemAPI.get().config().get("twitch.redirect.uri")));
+            URL url = new URL(String.format("https://id.twitch.tv/oauth2/token?client_id=%s&client_secret=%s&code=%s&grant_type=authorization_code&redirect_uri=%s", SystemAPI.get().config().get("twitch.client.id").getAsString(), SystemAPI.get().config().get("twitch.client.secret").getAsString(), code, SystemAPI.get().config().get("twitch.redirect.uri").getAsString()));
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
@@ -120,7 +120,7 @@ public record TwitchManager(TwitchClient client) {
 
     public JSONObject generateNewOauth2TokenWithRefreshToken(String refreshToken) {
         try {
-            URL url = new URL("https://id.twitch.tv/oauth2/token?grant_type=refresh_token&refresh_token=" + refreshToken + "&client_id=" + SystemAPI.get().config().get("twitch.client.id") + "&client_secret=" + SystemAPI.get().config().get("twitch.client.secret"));
+            URL url = new URL("https://id.twitch.tv/oauth2/token?grant_type=refresh_token&refresh_token=" + refreshToken + "&client_id=" + SystemAPI.get().config().get("twitch.client.id").getAsString() + "&client_secret=" + SystemAPI.get().config().get("twitch.client.secret").getAsString());
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");

@@ -16,34 +16,33 @@ public class ClientUser {
         return new ClientUser();
     }
 
-    private final String id = "1210324229";
-    private final String displayName = "LumoraBot";
+    private final String id = "1294628941";
+    private final String displayName = "TQusic";
     private final String login = displayName.toLowerCase();
 
 
     public String oauth() {
         try {
-            ResultSet rs = SystemAPI.get().database().query("SELECT * FROM OauthTokens WHERE id='" + id + "';");
+            ResultSet rs = SystemAPI.get().database().query("SELECT * FROM Channels WHERE channelId='" + id + "';");
             if (!rs.next()) {
                 try { rs.close(); } catch (Exception ignored) { }
                 return null;
             }
-            String accessToken = rs.getString("token");
-            String refreshToken = rs.getString("refreshToken");
-            long expires = rs.getLong("expiresIn");
-            long generated = rs.getLong("generated");
+            String accessToken = rs.getString("tAccessToken");
+            String refreshToken = rs.getString("tRefreshToken");
+            long expires = rs.getLong("tExpires");
             try { rs.close(); } catch (Exception ignored) { }
 
             String oauth2;
-            if (System.currentTimeMillis() / 1000 > generated + expires) {
+            if (System.currentTimeMillis() / 1000 > expires) {
                 JSONObject json = SystemAPI.get().twitchManager().generateNewOauth2TokenWithRefreshToken(refreshToken);
                 if (json == null) {
                     return null;
                 }
                 String newOauth2 = json.getString("access_token");
                 String newRefreshToken = json.getString("refresh_token");
-                long expiresIn = json.getLong("expires_in");
-                SystemAPI.get().database().execute("UPDATE OauthTokens SET token='" + newOauth2 + "', refreshToken='" + newRefreshToken + "', expiresIn=" + expiresIn + ", generated=" + System.currentTimeMillis() / 1000 + " WHERE id=" + id);
+                long expiresIn = System.currentTimeMillis() / 1000 + json.getLong("expires_in");
+                SystemAPI.get().database().execute("UPDATE Channel SET tAccessToken='" + newOauth2 + "', tRefreshToken='" + newRefreshToken + "', tExpires=" + expiresIn + " WHERE channelId=" + id);
                 oauth2 = newOauth2;
                 return oauth2;
             }

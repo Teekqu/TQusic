@@ -7,7 +7,7 @@ import eu.devload.twitch.objects.TwitchChannel;
 public class Resume implements TwitchCommand {
     @Override
     public void execute(TwitchChannel channel, EventUser sender, String command, String[] args) {
-
+        if(!command.equalsIgnoreCase("resume")) return;
         if(!channel.isModerator(sender.getId())) return;
 
         if (channel.spotifyApi() == null) {
