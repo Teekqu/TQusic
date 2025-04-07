@@ -74,8 +74,12 @@ public class SpotifyAPI {
 
 
     public SpotifyTrack searchTrack(String search) {
+        if(search.contains("spotify.com") && search.contains("track")) {
+            String split = search.split("/track/")[1];
+            String id = split.split("\\?")[0];
+            return this.getTrack(id);
+        }
         try {
-
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.spotify.com/v1/search?q=" + search + "&type=track&limit=1"))
@@ -226,7 +230,7 @@ public class SpotifyAPI {
                     .PUT(HttpRequest.BodyPublishers.noBody())
                     .build();
             HttpResponse<Void> response = client.send(request, HttpResponse.BodyHandlers.discarding());
-            return response.statusCode() == 204;
+            return response.statusCode() == 200;
         } catch (Exception err) {
             err.printStackTrace();
             return false;
@@ -243,7 +247,7 @@ public class SpotifyAPI {
                     .PUT(HttpRequest.BodyPublishers.noBody())
                     .build();
             HttpResponse<Void> response = client.send(request, HttpResponse.BodyHandlers.discarding());
-            return response.statusCode() == 204;
+            return response.statusCode() == 200;
         } catch (Exception err) {
             err.printStackTrace();
             return false;
@@ -260,8 +264,7 @@ public class SpotifyAPI {
                     .POST(HttpRequest.BodyPublishers.noBody())
                     .build();
             HttpResponse<Void> response = client.send(request, HttpResponse.BodyHandlers.discarding());
-            System.out.println(response.statusCode());
-            return response.statusCode() == 204;
+            return response.statusCode() == 200;
         } catch (Exception err) {
             err.printStackTrace();
             return false;
@@ -278,7 +281,7 @@ public class SpotifyAPI {
                     .POST(HttpRequest.BodyPublishers.noBody())
                     .build();
             HttpResponse<Void> response = client.send(request, HttpResponse.BodyHandlers.discarding());
-            return response.statusCode() == 204;
+            return response.statusCode() == 200;
         } catch (Exception err) {
             err.printStackTrace();
             return false;
@@ -296,7 +299,7 @@ public class SpotifyAPI {
                     .POST(HttpRequest.BodyPublishers.noBody())
                     .build();
             HttpResponse<Void> response = client.send(request, HttpResponse.BodyHandlers.discarding());
-            return response.statusCode() == 204;
+            return response.statusCode() == 200;
         } catch (Exception err) {
             err.printStackTrace();
             return false;
