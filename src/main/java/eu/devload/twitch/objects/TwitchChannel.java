@@ -213,8 +213,9 @@ public class TwitchChannel {
     }
 
     public void sendMessage(String message) {
-        ChatMessage msg = new ChatMessage(this.id(), ClientUser.get().id(), message, null);
-        SystemAPI.get().client().getHelix().sendChatMessage(ClientUser.get().oauth(), msg).execute();
+//        ChatMessage msg = new ChatMessage(this.id(), ClientUser.get().id(), message, null);
+//        SystemAPI.get().client().getHelix().sendChatMessage(ClientUser.get().oauth(), msg).execute();
+        SystemAPI.get().client().getChat().sendMessage(this.getName(), message);
     }
 
     public void timeoutUser(String userId, int seconds, String reason) {

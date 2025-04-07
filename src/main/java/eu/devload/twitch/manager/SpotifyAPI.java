@@ -6,7 +6,11 @@ import eu.devload.twitch.objects.TwitchChannel;
 import org.json.JSONObject;
 
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,33 +27,20 @@ public class SpotifyAPI {
 
     public static JSONObject generateNewAccessTokenByRefreshToken(String refreshToken) {
         try {
-
-            HttpURLConnection conn = (HttpURLConnection) new URL("https://accounts.spotify.com/api/token").openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            conn.setDoOutput(true);
-            conn.setDoInput(true);
-            conn.setRequestProperty("Authorization", "Basic " + java.util.Base64.getEncoder().encodeToString((SPOTIFY_CLIENT_ID + ":" + SPOTIFY_CLIENT_SECRET).getBytes()));
-            String body = "grant_type=refresh_token&refresh_token=" + refreshToken + "&client_id=" + SPOTIFY_CLIENT_ID;
-            conn.getOutputStream().write(body.getBytes());
-            conn.getOutputStream().flush();
-            conn.getOutputStream().close();
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 200) {
-                StringBuilder response = new StringBuilder();
-                java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(conn.getInputStream()));
-                String inputLine;
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-                conn.disconnect();
-                return new JSONObject(response.toString());
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://accounts.spotify.com/api/token"))
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .header("Authorization", "Basic "+java.util.Base64.getEncoder().encodeToString((SPOTIFY_CLIENT_ID + ":" + SPOTIFY_CLIENT_SECRET).getBytes()))
+                    .POST(HttpRequest.BodyPublishers.ofString("grant_type=refresh_token&refresh_token=" + refreshToken + "&client_id=" + SPOTIFY_CLIENT_ID))
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                return new JSONObject(response.body());
             } else {
-                System.out.println("Error: " + responseCode);
+                System.out.println("Error: " + response.statusCode());
                 return null;
             }
-
         } catch (Exception err) {
             err.printStackTrace();
             return null;
@@ -85,23 +76,17 @@ public class SpotifyAPI {
     public SpotifyTrack searchTrack(String search) {
         try {
 
-            HttpURLConnection conn = (HttpURLConnection) new URL("https://api.spotify.com/v1/search?q=" + search + "&type=track&limit=1").openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Authorization", "Bearer " + this.accessToken);
-            conn.setDoOutput(true);
-            conn.setDoInput(true);
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 200) {
-                StringBuilder response = new StringBuilder();
-                java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(conn.getInputStream()));
-                String inputLine;
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-                conn.disconnect();
-                JSONObject json = new JSONObject(response.toString());
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.spotify.com/v1/search?q=" + search + "&type=track&limit=1"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + this.accessToken)
+                    .GET()
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if(response.statusCode() == 200) {
+                JSONObject json = new JSONObject(response.body());
                 if (json.has("tracks")) {
                     JSONObject tracks = json.getJSONObject("tracks");
                     if (tracks.has("items")) {
@@ -126,8 +111,7 @@ public class SpotifyAPI {
                                 artists.add(new SpotifyArtist(artistId, artistName, artistHref, artistSpotifyUrl, artistUri));
                             }
                         }
-                        SpotifyTrack track = new SpotifyTrack(id, name, href, spotifyUrl, uri, durationMs, popularity, isLocal, artists);
-                        return track;
+                        return new SpotifyTrack(id, name, href, spotifyUrl, uri, durationMs, popularity, isLocal, artists);
                     }
                 }
             }
@@ -142,24 +126,16 @@ public class SpotifyAPI {
     public SpotifyTrack getTrack(String id) {
 
         try {
-
-            HttpURLConnection conn = (HttpURLConnection) new URL("https://api.spotify.com/v1/tracks/" + id).openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Authorization", "Bearer " + this.accessToken);
-            conn.setDoOutput(true);
-            conn.setDoInput(true);
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 200) {
-                StringBuilder response = new StringBuilder();
-                java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(conn.getInputStream()));
-                String inputLine;
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-                conn.disconnect();
-                JSONObject json = new JSONObject(response.toString());
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.spotify.com/v1/tracks/" + id))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + this.accessToken)
+                    .GET()
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if(response.statusCode() == 200) {
+                JSONObject json = new JSONObject(response.body());
                 if (json.has("id")) {
                     String id_ = json.getString("id");
                     String name = json.getString("name");
@@ -185,7 +161,6 @@ public class SpotifyAPI {
                 }
             }
             return null;
-
         } catch (Exception err) {
             err.printStackTrace();
             return null;
@@ -195,24 +170,17 @@ public class SpotifyAPI {
 
     public SpotifyTrack getCurrentPlaying() {
         try {
-
-            HttpURLConnection conn = (HttpURLConnection) new URL("https://api.spotify.com/v1/me/player/currently-playing").openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Authorization", "Bearer " + this.accessToken);
-            conn.setDoOutput(true);
-            conn.setDoInput(true);
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 200) {
-                StringBuilder response = new StringBuilder();
-                java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(conn.getInputStream()));
-                String inputLine;
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-                conn.disconnect();
-                JSONObject json = new JSONObject(response.toString());
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.spotify.com/v1/me/player/currently-playing"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + this.accessToken)
+                    .GET()
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                String body = response.body();
+                JSONObject json = new JSONObject(body);
                 if (json.has("item")) {
                     JSONObject item = json.getJSONObject("item");
                     if(!item.has("type") || !item.getString("type").equalsIgnoreCase("track")) {
@@ -242,7 +210,6 @@ public class SpotifyAPI {
                 }
             }
             return null;
-
         } catch (Exception err) {
             err.printStackTrace();
             return null;
@@ -251,17 +218,15 @@ public class SpotifyAPI {
 
     public boolean start() {
         try {
-            HttpURLConnection conn = (HttpURLConnection) new URL("https://api.spotify.com/v1/me/player/play").openConnection();
-            conn.setRequestMethod("PUT");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Authorization", "Bearer " + this.accessToken);
-            conn.setDoOutput(true);
-            conn.setDoInput(true);
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 204) {
-                return true;
-            }
-            return false;
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.spotify.com/v1/me/player/play"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + this.accessToken)
+                    .PUT(HttpRequest.BodyPublishers.noBody())
+                    .build();
+            HttpResponse<Void> response = client.send(request, HttpResponse.BodyHandlers.discarding());
+            return response.statusCode() == 204;
         } catch (Exception err) {
             err.printStackTrace();
             return false;
@@ -270,17 +235,15 @@ public class SpotifyAPI {
 
     public boolean pause() {
         try {
-            HttpURLConnection conn = (HttpURLConnection) new URL("https://api.spotify.com/v1/me/player/pause").openConnection();
-            conn.setRequestMethod("PUT");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Authorization", "Bearer " + this.accessToken);
-            conn.setDoOutput(true);
-            conn.setDoInput(true);
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 204) {
-                return true;
-            }
-            return false;
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.spotify.com/v1/me/player/pause"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + this.accessToken)
+                    .PUT(HttpRequest.BodyPublishers.noBody())
+                    .build();
+            HttpResponse<Void> response = client.send(request, HttpResponse.BodyHandlers.discarding());
+            return response.statusCode() == 204;
         } catch (Exception err) {
             err.printStackTrace();
             return false;
@@ -289,14 +252,16 @@ public class SpotifyAPI {
 
     public boolean skip() {
         try {
-            HttpURLConnection conn = (HttpURLConnection) new URL("https://api.spotify.com/v1/me/player/next").openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Authorization", "Bearer " + this.accessToken);
-            conn.setDoOutput(true);
-            conn.setDoInput(true);
-            int responseCode = conn.getResponseCode();
-            return responseCode == 204;
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.spotify.com/v1/me/player/next"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + this.accessToken)
+                    .POST(HttpRequest.BodyPublishers.noBody())
+                    .build();
+            HttpResponse<Void> response = client.send(request, HttpResponse.BodyHandlers.discarding());
+            System.out.println(response.statusCode());
+            return response.statusCode() == 204;
         } catch (Exception err) {
             err.printStackTrace();
             return false;
@@ -305,14 +270,15 @@ public class SpotifyAPI {
 
     public boolean previous() {
         try {
-            HttpURLConnection conn = (HttpURLConnection) new URL("https://api.spotify.com/v1/me/player/previous").openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Authorization", "Bearer " + this.accessToken);
-            conn.setDoOutput(true);
-            conn.setDoInput(true);
-            int responseCode = conn.getResponseCode();
-            return responseCode == 204;
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.spotify.com/v1/me/player/previous"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + this.accessToken)
+                    .POST(HttpRequest.BodyPublishers.noBody())
+                    .build();
+            HttpResponse<Void> response = client.send(request, HttpResponse.BodyHandlers.discarding());
+            return response.statusCode() == 204;
         } catch (Exception err) {
             err.printStackTrace();
             return false;
@@ -320,15 +286,17 @@ public class SpotifyAPI {
     }
 
     public boolean addTrack(SpotifyTrack track) {
+        if(track == null) return false;
         try {
-            HttpURLConnection conn = (HttpURLConnection) new URL("https://api.spotify.com/v1/me/player/queue?uri=" + track.uri()).openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Authorization", "Bearer " + this.accessToken);
-            conn.setDoOutput(true);
-            conn.setDoInput(true);
-            int responseCode = conn.getResponseCode();
-            return responseCode == 204;
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.spotify.com/v1/me/player/queue?uri=" + track.uri()))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + this.accessToken)
+                    .POST(HttpRequest.BodyPublishers.noBody())
+                    .build();
+            HttpResponse<Void> response = client.send(request, HttpResponse.BodyHandlers.discarding());
+            return response.statusCode() == 204;
         } catch (Exception err) {
             err.printStackTrace();
             return false;
@@ -340,14 +308,15 @@ public class SpotifyAPI {
             return false;
         }
         try {
-            HttpURLConnection conn = (HttpURLConnection) new URL("https://api.spotify.com/v1/me/player/volume?volume_percent=" + volume).openConnection();
-            conn.setRequestMethod("PUT");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Authorization", "Bearer " + this.accessToken);
-            conn.setDoOutput(true);
-            conn.setDoInput(true);
-            int responseCode = conn.getResponseCode();
-            return responseCode == 204;
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.spotify.com/v1/me/player/volume?volume_percent=" + volume))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + this.accessToken)
+                    .PUT(HttpRequest.BodyPublishers.noBody())
+                    .build();
+            HttpResponse<Void> response = client.send(request, HttpResponse.BodyHandlers.discarding());
+            return response.statusCode() == 204;
         } catch (Exception err) {
             err.printStackTrace();
             return false;
@@ -356,23 +325,17 @@ public class SpotifyAPI {
 
     public int getVolume() {
         try {
-            HttpURLConnection conn = (HttpURLConnection) new URL("https://api.spotify.com/v1/me/player").openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Authorization", "Bearer " + this.accessToken);
-            conn.setDoOutput(true);
-            conn.setDoInput(true);
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 200) {
-                StringBuilder response = new StringBuilder();
-                java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(conn.getInputStream()));
-                String inputLine;
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-                conn.disconnect();
-                JSONObject json = new JSONObject(response.toString());
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.spotify.com/v1/me/player"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + this.accessToken)
+                    .GET()
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                String body = response.body();
+                JSONObject json = new JSONObject(body);
                 if (json.has("device")) {
                     return json.getJSONObject("device").getInt("volume_percent");
                 }
