@@ -17,6 +17,11 @@ public class Volume implements TwitchCommand {
             return;
         }
 
+        if(!channel.isLive()) {
+            channel.sendMessage("This command is only available when the channel is live. | " + sender.getName());
+            return;
+        }
+
         if (args.length == 0) {
             channel.sendMessage("Current volume: " + spotify.getVolume() + "% | "+sender.getName());
             return;
@@ -34,6 +39,31 @@ public class Volume implements TwitchCommand {
                 channel.sendMessage("Failed to set volume. | "+sender.getName());
             }
         } catch (NumberFormatException e) {
+            if(args[0].startsWith("+")) {
+                try {
+                    int currentVolume = spotify.getVolume();
+                    int newVolume = currentVolume + Integer.parseInt(args[0].substring(1));
+                    if (newVolume > 100) newVolume = 100;
+                    if (spotify.setVolume(newVolume)) channel.sendMessage("Volume increased to " + newVolume + "% | " + sender.getName());
+                    else channel.sendMessage("Failed to increase volume. | " + sender.getName());
+                    return;
+                } catch (NumberFormatException ex) {
+                    channel.sendMessage("Invalid volume value. Please enter a number between 0 and 100. | "+sender.getName());
+                    return;
+                }
+            } else if(args[0].startsWith("-")) {
+                try {
+                    int currentVolume = spotify.getVolume();
+                    int newVolume = currentVolume - Integer.parseInt(args[0].substring(1));
+                    if (newVolume < 0) newVolume = 0;
+                    if (spotify.setVolume(newVolume)) channel.sendMessage("Volume decreased to " + newVolume + "% | " + sender.getName());
+                    else channel.sendMessage("Failed to decrease volume. | " + sender.getName());
+                    return;
+                } catch (NumberFormatException ex) {
+                    channel.sendMessage("Invalid volume value. Please enter a number between 0 and 100. | "+sender.getName());
+                    return;
+                }
+            }
             channel.sendMessage("Invalid volume value. Please enter a number between 0 and 100. | "+sender.getName());
         }
 

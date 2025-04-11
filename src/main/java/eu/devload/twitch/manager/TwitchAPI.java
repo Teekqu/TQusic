@@ -89,4 +89,26 @@ public class TwitchAPI {
         }
     }
 
+    public static void cancelReward(TwitchChannel channel, String uuid) {
+
+        HttpClient client = HttpClient.newHttpClient();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions"))
+                .header("Authorization", "Bearer " + channel.oauth2("t"))
+                .header("Client-Id", SystemAPI.get().config().get("twitch.client.id").getAsString())
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .method("PATCH", HttpRequest.BodyPublishers.ofString("{\"status\":\"CANCELED\"}"))
+                .build();
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return;
+        } catch (Exception err) {
+            err.printStackTrace();
+            return;
+        }
+
+    }
+
 }

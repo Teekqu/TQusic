@@ -16,6 +16,11 @@ public class Previous implements TwitchCommand {
             return;
         }
 
+        if(!channel.isLive()) {
+            channel.sendMessage("This command is only available when the channel is live. | " + sender.getName());
+            return;
+        }
+
         if (channel.spotifyApi().previous()) {
             channel.sendMessage("Skipped to the previous track. | "+sender.getName());
         } else {

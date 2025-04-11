@@ -25,6 +25,11 @@ public class Song implements TwitchCommand {
             return;
         }
 
+        if(!channel.isLive()) {
+            channel.sendMessage("This command is only available when the channel is live. | " + sender.getName());
+            return;
+        }
+
         String artistNames = track.artists().stream()
                 .map(SpotifyArtist::name)
                 .reduce((a, b) -> a + ", " + b)

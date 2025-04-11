@@ -15,6 +15,11 @@ public class Skip implements TwitchCommand {
             return;
         }
 
+        if(!channel.isLive()) {
+            channel.sendMessage("This command is only available when the channel is live. | " + sender.getName());
+            return;
+        }
+
         if (channel.spotifyApi().skip()) {
             channel.sendMessage("Skipped the current track. | "+sender.getName());
         } else {
