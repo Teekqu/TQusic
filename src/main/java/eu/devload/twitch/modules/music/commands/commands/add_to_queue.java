@@ -2,6 +2,7 @@ package eu.devload.twitch.modules.music.commands.commands;
 
 import com.github.twitch4j.common.events.domain.EventUser;
 import eu.devload.twitch.interfaces.TwitchCommand;
+import eu.devload.twitch.objects.SpotifyArtist;
 import eu.devload.twitch.objects.SpotifyTrack;
 import eu.devload.twitch.objects.TwitchChannel;
 
@@ -27,7 +28,7 @@ public class add_to_queue implements TwitchCommand {
         if (track != null) {
             if(channel.spotifyApi().addTrack(track)) {
                 String artistNames = track.artists().stream()
-                        .map(artist -> artist.name())
+                        .map(SpotifyArtist::name)
                         .reduce((a, b) -> a + ", " + b)
                         .orElse("Unknown");
                 channel.sendMessage("Added " + track.name() + " by "+artistNames+" to the queue. | "+sender.getName());
