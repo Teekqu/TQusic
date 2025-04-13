@@ -207,7 +207,7 @@ public class TwitchChannel {
     }
 
     public boolean isLive() {
-        return !this.getUptime().equals("-1s");
+        return CacheManager.get().getLiveChannel(this.id) != null;
     }
 
     public Stream getStream() {
