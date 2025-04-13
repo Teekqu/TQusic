@@ -39,7 +39,7 @@ public class CacheManager {
         else liveChannels.put(liveObject.channelId(), liveObject);
     }
     public LiveObject getLiveChannel(String id) {
-        return liveChannels.get(id);
+        return liveChannels.getOrDefault(id, null);
     }
     public void removeLiveChannel(String id) {
         liveChannels.remove(id);
