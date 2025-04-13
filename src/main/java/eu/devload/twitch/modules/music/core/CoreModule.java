@@ -26,6 +26,6 @@ public class CoreModule implements TwitchModule {
 
     @Override
     public ModuleInfo info() {
-        return null;
+        return new CoreModuleInfo();
     }
 }
