@@ -5,11 +5,15 @@ import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import eu.devload.twitch.api.API;
+import eu.devload.twitch.manager.CacheManager;
 import eu.devload.twitch.manager.CommandTriggerImpl;
 import eu.devload.twitch.manager.ModuleManager;
 import eu.devload.twitch.modules.music.commands.MusicCommandModule;
+import eu.devload.twitch.modules.music.core.CoreModule;
 import eu.devload.twitch.modules.music.points.MusicPointsModule;
 import eu.devload.twitch.objects.ClientUser;
+import eu.devload.twitch.objects.LiveObject;
+import eu.devload.twitch.objects.TwitchChannel;
 import eu.devload.twitch.utils.SystemAPI;
 
 public class TQusic {
@@ -35,6 +39,7 @@ public class TQusic {
         ModuleManager moduleManager = SystemAPI.get().moduleManager();
         moduleManager.registerModule(new MusicCommandModule());
         moduleManager.registerModule(new MusicPointsModule());
+        moduleManager.registerModule(new CoreModule());
 
         // API
         new API();
@@ -42,6 +47,13 @@ public class TQusic {
         SystemAPI.get().twitchManager().joinChannels(SystemAPI.get().twitchManager().registeredChannels());
         client.getChat().joinChannel(ClientUser.get().login());
         client.getChat().connect();
+
+        for(TwitchChannel channel : SystemAPI.get().twitchManager().registeredChannels()) {
+            if(!channel.getUptime().equalsIgnoreCase("-1s")) {
+                LiveObject liveObject = new LiveObject(channel.id(), "Unknown", "Unknown", 0);
+                CacheManager.get().setLiveChannel(liveObject);
+            }
+        }
 
         CommandTriggerImpl.startEventCheck();
     }
