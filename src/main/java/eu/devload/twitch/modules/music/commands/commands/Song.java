@@ -19,14 +19,14 @@ public class Song implements TwitchCommand {
             return;
         }
 
-        SpotifyTrack track = spotify.getCurrentPlaying();
-        if (track == null) {
-            channel.sendMessage("No song is currently playing. | "+sender.getName());
+        if(!channel.isLive()) {
+            channel.sendMessage("This command is only available when the channel is live. | " + sender.getName());
             return;
         }
 
-        if(!channel.isLive()) {
-            channel.sendMessage("This command is only available when the channel is live. | " + sender.getName());
+        SpotifyTrack track = spotify.getCurrentPlaying();
+        if (track == null) {
+            channel.sendMessage("No song is currently playing. | "+sender.getName());
             return;
         }
 
