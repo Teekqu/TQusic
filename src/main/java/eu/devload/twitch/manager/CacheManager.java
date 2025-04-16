@@ -42,7 +42,9 @@ public class CacheManager {
         return liveChannels.getOrDefault(id, null);
     }
     public void removeLiveChannel(String id) {
-        liveChannels.remove(id);
+        while(liveChannels.containsKey(id)) {
+            liveChannels.remove(id);
+        }
     }
 
     public void setUser(UserObject user) {
