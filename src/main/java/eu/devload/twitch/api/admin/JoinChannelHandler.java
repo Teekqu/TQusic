@@ -2,7 +2,9 @@ package eu.devload.twitch.api.admin;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import eu.devload.twitch.manager.CacheManager;
 import eu.devload.twitch.objects.ClientUser;
+import eu.devload.twitch.objects.LiveObject;
 import eu.devload.twitch.objects.TwitchChannel;
 import eu.devload.twitch.utils.SystemAPI;
 import org.json.JSONObject;
@@ -48,9 +50,15 @@ public class JoinChannelHandler implements HttpHandler {
                 }
 
                 SystemAPI.get().database().execute("INSERT INTO Channels(channelId, tAccessToken, tRefreshToken, tExpires, sAccessToken, sRefreshToken, sExpires) VALUES('" + channel + "', '" + tAccessToken + "', '" + tRefreshToken + "', '" + tExpiresIn + "', '" + sAccessToken + "', '" + sRefreshToken + "', '" + sExpiresIn + "') ON DUPLICATE KEY UPDATE tAccessToken='" + tAccessToken + "', tRefreshToken='" + tRefreshToken + "', tExpires='" + tExpiresIn + "', sAccessToken='" + sAccessToken + "', sRefreshToken='" + sRefreshToken + "', sExpires='" + sExpiresIn + "'");
-                SystemAPI.get().twitchManager().joinChannel(new TwitchChannel(channel));
+
+                TwitchChannel tChannel = new TwitchChannel(channel);
+                SystemAPI.get().twitchManager().joinChannel(tChannel);
                 exchange.sendResponseHeaders(200, 0);
                 exchange.getResponseBody().close();
+                if(!tChannel.getUptime().equalsIgnoreCase("-1s")) {
+                    LiveObject liveObject = new LiveObject(tChannel.id(), "Unknown", "Unknown", 0);
+                    CacheManager.get().setLiveChannel(liveObject);
+                }
                 System.out.println("[API] Joined channel " + channel);
             } catch (Exception err) {
                 err.printStackTrace();
