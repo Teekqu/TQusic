@@ -1,0 +1,16 @@
+{
+  "twitch.client.id": "",
+  "twitch.client.secret": "",
+  "twitch.client.oauth": "",
+  "twitch.redirect.uri": "",
+
+  "api.auth.token": "",
+
+  "database.ip": "",
+  "database.port": ,
+  "database.database": "",
+  "database.username": "",
+  "database.password": "",
+  "database.maxConnections": 3,
+  "database.table.channels": ""
+}
