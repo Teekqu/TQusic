@@ -19,7 +19,8 @@ public class JoinChannelHandler implements HttpHandler {
         if(exchange.getRequestMethod().equalsIgnoreCase("POST")) {
 
             String auth = exchange.getRequestHeaders().getFirst("Authorization");
-            if(auth == null || !auth.equals("DevLoad q057ht9&Qw7tq597hgq73%/hrsegae9urghf34")) {
+            String authToken = SystemAPI.get().config().get("api.auth.token").getAsString();
+            if(auth == null || !auth.equals("DevLoad "+authToken)) {
                 System.out.println("[API] Unauthorized request");
                 exchange.sendResponseHeaders(401, 0);
                 exchange.getResponseBody().close();
