@@ -34,7 +34,7 @@ public class ChannelRewardClaimed implements RewardRedeemedEvent {
                         .map(SpotifyArtist::name)
                         .reduce((a, b) -> a + ", " + b)
                         .orElse("Unknown");
-                channel.sendMessage("Added song to queue: " + input + " by "+artistNames+" | " + event.getRedemption().getUser().getDisplayName());
+                channel.sendMessage("Added song to queue: " + track.name() + " by "+artistNames+" | " + event.getRedemption().getUser().getDisplayName());
             } else {
                 channel.sendMessage("No song name provided. | " + event.getRedemption().getUser().getDisplayName());
                 TwitchAPI.cancelReward(channel, event.getRedemption().getId());
